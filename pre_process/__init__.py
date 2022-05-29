@@ -1,3 +1,3 @@
-from lemmatizer import *
-from normalizer import *
-from pre_processor import *
+from .lemmatizer import *
+from .normalizer import *
+from .pre_processor import *

@@ -1,1 +1,1 @@
-from wiki_scraper import *
+from .wiki_scraper import *
