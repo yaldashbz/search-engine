@@ -1,7 +1,8 @@
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk import pos_tag
-from normalizer import Normalizer, POSTagNormalizer
-from lemmatizer import Lemmatizer, POSTagLemmatizer
+
+from pre_process.normalizer import Normalizer, POSTagNormalizer
+from pre_process.lemmatizer import Lemmatizer, POSTagLemmatizer
 
 
 class PreProcessor:
@@ -16,7 +17,7 @@ class PreProcessor:
         return [word_tokenize(sent) for sent in sents]
 
     def tag(self, sents):
-        return [self.tag(sent) for sent in sents] if self.pos_tagging else sents
+        return [pos_tag(sent) for sent in sents] if self.pos_tagging else sents
 
     def process(self, content):
         tokenized = self.tag(self.tokenize(content))
