@@ -1,5 +1,6 @@
-import nltk
 import string
+
+import nltk
 
 
 class Normalizer:
@@ -19,55 +20,55 @@ class Normalizer:
         self.stopwords_domain = stopwords_domain + nltk.corpus.stopwords.words('english')
         self.punctuation_removal = punctuation_removal
 
-    def remove_stopwords(self, sents):
+    def remove_stopwords(self, sentences):
         stopwords = [x.lower() for x in self.stopwords_domain]
         return [[word for word in sentence if (word.lower() not in stopwords)]
-                for sentence in sents]
+                for sentence in sentences]
 
-    def remove_punctuations(self, sents):
+    def remove_punctuations(self, sentences):
         return [[word for word in sentence if word not in string.punctuation]
-                for sentence in sents]
+                for sentence in sentences]
 
-    def lower_case(self, sents):
+    def lower_case(self, sentences):
         return [[word.lower() for word in sentence if len(word) > self.min_len]
-                for sentence in sents]
+                for sentence in sentences]
 
-    def filter_min_len(self, sents):
+    def filter_min_len(self, sentences):
         return [[word for word in sentence if len(word) > self.min_len]
-                for sentence in sents]
+                for sentence in sentences]
 
-    def normalize(self, tokenized_sents):
-        sents = tokenized_sents
+    def normalize(self, tokenized_sentences):
+        sentences = tokenized_sentences
         if self.stopword_removal:
-            sents = self.remove_stopwords(sents)
+            sentences = self.remove_stopwords(sentences)
         if self.punctuation_removal:
-            sents = self.remove_punctuations(sents)
+            sentences = self.remove_punctuations(sentences)
         if self.lower_cased:
-            sents = self.lower_case(sents)
+            sentences = self.lower_case(sentences)
         elif self.min_len > 1:
-            sents = self.filter_min_len(sents)
-        return sents
+            sentences = self.filter_min_len(sentences)
+        return sentences
 
 
 class POSTagNormalizer(Normalizer):
-    """data normalizer with pos tag"""
+    """data normalizer with pos-tag"""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def remove_stopwords(self, sents):
+    def remove_stopwords(self, sentences):
         stopwords = [x.lower() for x in self.stopwords_domain]
         return [[(word, pos) for word, pos in sentence if (word.lower() not in stopwords)]
-                for sentence in sents]
+                for sentence in sentences]
 
-    def remove_punctuations(self, sents):
+    def remove_punctuations(self, sentences):
         return [[(word, pos) for word, pos in sentence if word not in string.punctuation]
-                for sentence in sents]
+                for sentence in sentences]
 
-    def lower_case(self, sents):
+    def lower_case(self, sentences):
         return [[(word.lower(), pos) for word, pos in sentence if len(word) > self.min_len]
-                for sentence in sents]
+                for sentence in sentences]
 
-    def filter_min_len(self, sents):
+    def filter_min_len(self, sentences):
         return [[(word, pos) for word, pos in sentence if len(word) > self.min_len]
-                for sentence in sents]
+                for sentence in sentences]
