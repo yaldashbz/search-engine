@@ -4,7 +4,7 @@ from typing import List
 import requests
 from bs4 import BeautifulSoup
 
-from data.data import EngineData
+from retriever.data import EngineData
 
 
 class BaseWebScraper(ABC):

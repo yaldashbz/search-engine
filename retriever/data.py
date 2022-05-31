@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass
 from typing import List
 
-from data.utils import get_keywords
+from retriever.utils import get_keywords
 from pre_process import PreProcessor
 
 

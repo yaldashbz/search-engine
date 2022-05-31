@@ -4,9 +4,9 @@ import wikipedia
 from tqdm import tqdm
 from wikipedia import WikipediaException
 
-from data.data import EngineData
-from data.scrapers.base_scraper import BaseWebScraper
-from data.utils import WIKI_CATEGORIES
+from retriever.data import EngineData
+from retriever.scrapers.base_scraper import BaseWebScraper
+from retriever.utils import WIKI_CATEGORIES
 
 wikipedia.set_lang('en')
 wikipedia.set_rate_limiting(True)
@@ -14,7 +14,7 @@ wikipedia.set_rate_limiting(True)
 
 class WikiScraper(BaseWebScraper):
     def __init__(self):
-        self.titles = []
+        self.titles = []  # TODO: remove
         self.categories = WIKI_CATEGORIES
 
     def scrape(
