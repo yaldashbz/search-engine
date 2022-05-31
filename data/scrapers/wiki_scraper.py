@@ -1,6 +1,7 @@
 from typing import List, Tuple, Set
 
 import wikipedia
+from tqdm import tqdm
 from wikipedia import WikipediaException
 
 from data.data import EngineData
@@ -17,16 +18,17 @@ class WikiScraper(BaseWebScraper):
         self.categories = WIKI_CATEGORIES
 
     def scrape(
-            self, url: str = None, max_depth: int = 3, use_linked: bool = False
+            self,
+            url: str = None,
+            max_depth: int = 3,
+            use_linked: bool = False
     ) -> List[EngineData]:
 
-        return self._linked_scrape(max_depth) \
-            if use_linked else self._scrape(max_depth)
+        return self._linked_scrape(max_depth) if use_linked else self._scrape(max_depth)
 
     def _scrape(self, max_depth) -> List[EngineData]:
-        titles = self._get_titles(list(), self.categories, max_depth)
-        self.titles = titles
-        return self._get_data(titles)
+        self.titles = self._get_titles(list(), self.categories, max_depth)
+        return self._get_data(self.titles)
 
     def _linked_scrape(self, max_depth) -> List[EngineData]:
         titles = self._get_titles(list(), self.categories, max_depth)
@@ -40,7 +42,7 @@ class WikiScraper(BaseWebScraper):
         if max_depth == 0:
             return set(titles)
 
-        for subject in subjects:
+        for subject in tqdm(subjects):
             titles += wikipedia.search(subject)
 
         new_subjects = titles.copy()
@@ -62,7 +64,7 @@ class WikiScraper(BaseWebScraper):
     @classmethod
     def _get_data(cls, titles) -> List[EngineData]:
         data = []
-        for title in titles:
+        for title in tqdm(titles):
             try:
                 page = wikipedia.page(title)
                 data.append(EngineData(url=page.url, content=page.content))

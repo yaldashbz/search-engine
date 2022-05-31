@@ -10,7 +10,7 @@ class Lemmatizer:
 
 
 class POSTagLemmatizer(Lemmatizer):
-    """data lemmatizer with pos tag"""
+    """data lemmatizer with pos-tag"""
 
     def lemmatize(self, content):
         return [[(self.backbone.lemmatize(word), pos) for word, pos in sent]
