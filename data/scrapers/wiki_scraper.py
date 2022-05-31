@@ -13,8 +13,6 @@ wikipedia.set_rate_limiting(True)
 
 
 class WikiScraper(BaseWebScraper):
-    i = 0
-
     def __init__(self):
         self.titles = []
         self.categories = WIKI_CATEGORIES
@@ -41,9 +39,6 @@ class WikiScraper(BaseWebScraper):
 
     @classmethod
     def _get_titles(cls, titles, subjects, max_depth) -> Set[str]:
-        print()
-        print(cls.i)
-        cls.i += 1
         if max_depth == 0:
             return set(titles)
 
