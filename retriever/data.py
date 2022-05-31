@@ -9,13 +9,14 @@ from pre_process import PreProcessor
 @dataclass
 class EngineData:
     url: str
-    content: str
+    sentences: str
     keywords: List[str]
 
     def __init__(self, url, content):
         self.url = url
-        self.content = ' '.join([' '.join(sentence) for sentence in PreProcessor().process(content)])
-        self.keywords = get_keywords(self.content)
+        self.data = PreProcessor().process(content)
+        content = ' '.join([' '.join(sentence) for sentence in self.data])
+        self.keywords = get_keywords(content)
 
     @classmethod
     def _convert(cls, data: List) -> List:
