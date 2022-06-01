@@ -6,7 +6,7 @@ import nltk
 class Normalizer:
     def __init__(
             self,
-            min_len: int = 3,
+            min_len: int = 2,
             lower_cased: bool = True,
             stopword_removal: bool = True,
             stopwords_domain: list = None,

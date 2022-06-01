@@ -4,9 +4,10 @@ from typing import List
 from pre_process import PreProcessor
 
 WIKI_CATEGORIES = [
-    'bbc', 'religion', 'sport',
+    'bbc', 'religion', 'sport', 'drink',
     'financial', 'health', 'literature',
-    'social networks'
+    'social networks', 'food', 'history',
+    'animal'
 ]
 
 
