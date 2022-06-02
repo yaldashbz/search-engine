@@ -67,6 +67,7 @@ class FasttextSearcher(BaseSearcher):
         for index, embedding in self.doc_embedding_avg.items():
             similarities[index] = cosine_sim(embedding, query_embedding_avg)
 
+        print(similarities)
         similarities = sorted(similarities, key=lambda x: x[1])[::-1]
         return self._get_result(similarities)
 
