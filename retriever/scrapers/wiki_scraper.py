@@ -50,8 +50,8 @@ class WikiScraper(BaseWebScraper):
 
     @classmethod
     def _get_linked_titles(cls, titles) -> Tuple[Set[str], List[EngineData]]:
-        links = []
-        base_data = []
+        links = list()
+        base_data = list()
         for title in titles:
             try:
                 page = wikipedia.page(title)
@@ -63,7 +63,7 @@ class WikiScraper(BaseWebScraper):
 
     @classmethod
     def _get_data(cls, titles) -> List[EngineData]:
-        data = []
+        data = list()
         for title in tqdm(titles):
             try:
                 page = wikipedia.page(title)
