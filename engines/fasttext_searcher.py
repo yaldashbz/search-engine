@@ -26,7 +26,7 @@ class FasttextSearcher(BaseSearcher):
     @classmethod
     def _get_fasttext(cls, train):
         return FastText(
-            sg=1, window=10, min_count=2,
+            sg=1, window=10, min_count=1,
             negative=15, min_n=2, max_n=5
         ) if train else FastText.load(cls._MODEL_PATH)
 
