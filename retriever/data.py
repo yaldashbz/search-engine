@@ -11,10 +11,10 @@ class EngineData:
     content: str
     keywords: List[str]
 
-    def __init__(self, url, content):
+    def __init__(self, url, sentences):
         self.url = url
-        self.content = ' '.join([' '.join(sentence) for sentence in self.sentences])
-        self.keywords = get_keywords(content)
+        self.content = ' '.join([' '.join(sentence) for sentence in sentences])
+        self.keywords = get_keywords(self.content)
 
     @classmethod
     def _convert(cls, data: List) -> List:
