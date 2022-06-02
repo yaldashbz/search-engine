@@ -10,23 +10,24 @@ from retriever.utils import get_contents, get_words
 
 class FasttextSearcher(BaseSearcher):
     _EPOCHS = 6
-    _MODEL_PATH = 'models/fasttext.model'
+    _MODEL_PATH = '/models'
+    _MODEL_FILE = 'fasttext.model'
 
-    def __init__(self, data, train=True):
+    def __init__(self, data, train: bool = True, min_count: int = 1):
         super().__init__(data)
         contents = get_contents(data)
 
         self.output_cls = DataOut
-        self.fasttext = self._get_fasttext(train)
+        self.fasttext = self._get_fasttext(train, min_count)
         if train:
             self._train(contents)
 
         self.doc_embedding_avg = self._get_doc_embedding_avg(contents)
 
     @classmethod
-    def _get_fasttext(cls, train):
+    def _get_fasttext(cls, train, min_count):
         return FastText(
-            sg=1, window=10, min_count=1,
+            sg=1, window=10, min_count=min_count,
             negative=15, min_n=2, max_n=5
         ) if train else FastText.load(cls._MODEL_PATH)
 
@@ -41,7 +42,7 @@ class FasttextSearcher(BaseSearcher):
         )
         if not os.path.exists(self._MODEL_PATH):
             os.mkdir(self._MODEL_PATH)
-        self.fasttext.save(self._MODEL_PATH)
+        self.fasttext.save(os.path.join(self._MODEL_PATH, self._MODEL_FILE))
 
     def _get_doc_embedding_avg(self, contents):
         docs_avg = dict()
