@@ -44,14 +44,14 @@ class FasttextSearcher(BaseSearcher):
         docs_avg = dict()
         for i, content in enumerate(contents):
             words = get_words(content)
-            total = np.zeros(len(words))
+            total = np.zeros(100)
             for word in words:
                 total = np.sum([total, self.model.wv[word]], axis=0)
             docs_avg[i] = total / len(words)
         return docs_avg
 
     def _get_query_embedding_avg(self, tokens):
-        total = np.zeros(len(tokens))
+        total = np.zeros(100)
         for token in tokens:
             total = np.sum([total, self.model.wv[token]], axis=0)
         return total / len(tokens)
