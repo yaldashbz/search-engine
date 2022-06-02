@@ -47,10 +47,6 @@ class TransformerSearcher(BaseSearcher):
         distances, indexes = self.index.search(np.array(vector).astype('float32'), k=k)
         return self._get_results(distances, indexes)
 
-    def get_search_results_df(self, query, k):
-        output = self.search(query, k)
-        return self.output_cls.to_df(output)
-
     def _get_results(self, distances, indexes):
         indexes = indexes.flatten().tolist()
         distances = distances.flatten().tolist()

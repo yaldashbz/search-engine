@@ -4,7 +4,7 @@ import numpy as np
 from gensim.models.fasttext import FastText
 
 from engines.base_searcher import BaseSearcher
-from engines.utils import cosine_sim, DataOut
+from engines.utils import cosine_sim
 from retriever.utils import get_contents, get_words
 
 
@@ -17,7 +17,6 @@ class FasttextSearcher(BaseSearcher):
         super().__init__(data)
         contents = get_contents(data)
 
-        self.output_cls = DataOut
         if train:
             self._train(contents, min_count)
         self.model = FastText.load(os.path.join(self._MODEL_PATH, self._MODEL_FILE))
@@ -69,10 +68,6 @@ class FasttextSearcher(BaseSearcher):
 
         similarities = sorted(similarities.items(), key=lambda x: x[1])[::-1][:k]
         return self._get_result(similarities)
-
-    def get_search_results_df(self, query, k):
-        output = self.search(query, k)
-        return self.output_cls.to_df(output)
 
     def _get_result(self, similarities):
         return [self.output_cls(

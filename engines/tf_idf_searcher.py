@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from engines.base_searcher import BaseSearcher
-from engines.utils import cosine_sim, DataOut
+from engines.utils import cosine_sim
 from retriever.utils import get_contents
 
 
@@ -16,7 +16,6 @@ class TFIDFSearcher(BaseSearcher):
         self.tfidf = self._get_tfidf()
         self.matrix = self.tfidf.fit_transform(contents)
         self.vocabulary = self.tfidf.get_feature_names_out()
-        self.output_cls = DataOut
 
     @classmethod
     def _get_tfidf(cls):
@@ -36,10 +35,6 @@ class TFIDFSearcher(BaseSearcher):
             scores.append(cosine_sim(query_vector, doc))
 
         return self._get_results(scores, k)
-
-    def get_search_results_df(self, query, k):
-        output = self.search(query, k)
-        return self.output_cls.to_df(output)
 
     def _get_results(self, scores, k):
         out = np.array(scores).argsort()[-k:][::-1]
