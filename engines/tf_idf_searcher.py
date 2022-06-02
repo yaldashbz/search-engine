@@ -1,9 +1,10 @@
+import itertools
 import re
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from search_engines.base_searcher import BaseSearcher
-from search_engines.utils import cosine_sim, TFIDFOut
+from engines.base_searcher import BaseSearcher
+from engines.utils import cosine_sim, TFIDFOut
 
 
 class TFIDFSearcher(BaseSearcher):
@@ -47,18 +48,18 @@ class TFIDFSearcher(BaseSearcher):
         results = list()
         out = np.array(similar).argsort()[-k:][::-1]
         for index in out:
-            url = self.data[index]['url']
+            # url = self.data[index]['url']
             score = similar[index]
-            results.append(self.output_cls(url=url, score=score))
+            results.append({'score': score, 'index': index})
         return results
 
     def _get_query_vector(self, tokens):
         n = len(self.vocabulary)
         vector = np.zeros(n)
 
-        for token in tokens:
+        for token in itertools.chain(*tokens):
             try:
-                index = self.vocabulary.tolist().index(token)
+                index = self.tfidf.vocabulary_[token]
                 vector[index] = 1
             except ValueError:
                 pass

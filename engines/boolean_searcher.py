@@ -1,4 +1,4 @@
-from search_engines.base_searcher import BaseSearcher
+from engines.base_searcher import BaseSearcher
 
 NOT_OP = "NOT"
 AND_OP = "AND"
