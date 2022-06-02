@@ -17,9 +17,16 @@ class PreProcessor:
         return [word_tokenize(sentence) for sentence in sentences]
 
     def tag(self, sentences):
-        return [pos_tag(sentence) for sentence in sentences] if self.pos_tagging else sentences
+        return [pos_tag(sentence) for sentence in sentences] \
+            if self.pos_tagging else sentences
+
+    def normalize(self, sentences):
+        return self.normalizer.normalize(sentences)
+
+    def lemmatize(self, sentences):
+        return self.lemmatizer.lemmatize(sentences)
 
     def process(self, content):
         tokenized = self.tag(self.tokenize(content))
-        normalized = self.normalizer.normalize(tokenized)
-        return self.lemmatizer.lemmatize(normalized)
+        normalized = self.normalize(tokenized)
+        return self.lemmatize(normalized)
