@@ -20,7 +20,7 @@ class FasttextSearcher(BaseSearcher):
         self.output_cls = DataOut
         if train:
             self._train(contents, min_count)
-        self.fasttext = FastText.load(os.path.join(self._MODEL_PATH, self._MODEL_FILE))
+        self.model = FastText.load(os.path.join(self._MODEL_PATH, self._MODEL_FILE))
         self.doc_embedding_avg = self._get_doc_embedding_avg(contents)
 
     def _train(self, contents, min_count):
@@ -33,8 +33,8 @@ class FasttextSearcher(BaseSearcher):
         fasttext.train(
             tokens,
             epochs=self._EPOCHS,
-            total_examples=self.fasttext.corpus_count,
-            total_words=self.fasttext.corpus_total_words
+            total_examples=fasttext.corpus_count,
+            total_words=fasttext.corpus_total_words
         )
         if not os.path.exists(self._MODEL_PATH):
             os.mkdir(self._MODEL_PATH)
@@ -46,14 +46,14 @@ class FasttextSearcher(BaseSearcher):
             words = get_words(content)
             total = np.zeros(len(words))
             for word in words:
-                total = np.sum([total, self.fasttext[word]], axis=0)
+                total = np.sum([total, self.model[word]], axis=0)
             docs_avg[i] = total / len(words)
         return docs_avg
 
     def _get_query_embedding_avg(self, tokens):
         total = np.zeros(len(tokens))
         for token in tokens:
-            total = np.sum([total, self.fasttext[token]], axis=0)
+            total = np.sum([total, self.model[token]], axis=0)
         return total / len(tokens)
 
     def process_query(self, query):
