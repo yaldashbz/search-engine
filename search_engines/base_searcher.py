@@ -4,7 +4,8 @@ from pre_process import PreProcessor
 
 
 class BaseSearcher(ABC):
-    def __init__(self):
+    def __init__(self, data):
+        self.data = data
         self.pre_processor = PreProcessor()
 
     @abstractmethod
@@ -12,5 +13,5 @@ class BaseSearcher(ABC):
         pass
 
     @abstractmethod
-    def search(self):
+    def search(self, query, k):
         pass

@@ -1,4 +1,4 @@
-from search_methods.base_method import BaseSearcher
+from search_engines.base_searcher import BaseSearcher
 
 NOT_OP = "NOT"
 AND_OP = "AND"
@@ -16,7 +16,7 @@ class BooleanSearcher(BaseSearcher):
         query_stack = self._shunting_yard(query)
         print(query_stack)
 
-    def search(self):
+    def search(self, query, k):
         pass
 
     def _parse_query(self, query):
