@@ -32,24 +32,24 @@ class TFIDFSearcher(BaseSearcher):
         return self.pre_processor.process(query)
 
     def search(self, query, k):
-        similar = list()
+        scores = list()
         tokens = self.process_query(query)
         query_vector = self._get_query_vector(tokens)
         for doc in self.matrix.A:
-            similar.append(cosine_sim(query_vector, doc))
+            scores.append(cosine_sim(query_vector, doc))
 
-        return self._get_results(similar, k)
+        return self._get_results(scores, k)
 
     def get_search_results_df(self, query, k):
         output = self.search(query, k)
         return self.output_cls.to_df(output)
 
-    def _get_results(self, similar, k):
+    def _get_results(self, scores, k):
         results = list()
-        out = np.array(similar).argsort()[-k:][::-1]
+        out = np.array(scores).argsort()[-k:][::-1]
         for index in out:
             url = self.data[index]['url']
-            score = similar[index]
+            score = scores[index]
             results.append(self.output_cls(url=url, score=score))
         return results
 
