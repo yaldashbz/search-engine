@@ -1,6 +1,5 @@
-import string
-
 import nltk
+import string
 
 
 class Normalizer:
@@ -8,7 +7,7 @@ class Normalizer:
             self,
             min_len: int = 2,
             lower_cased: bool = True,
-            stopword_removal: bool = True,
+            stopwords_removal: bool = True,
             stopwords_domain: list = None,
             punctuation_removal: bool = True
     ):
@@ -16,7 +15,7 @@ class Normalizer:
             stopwords_domain = list()
         self.min_len = min_len
         self.lower_cased = lower_cased
-        self.stopword_removal = stopword_removal
+        self.stopwords_removal = stopwords_removal
         self.stopwords_domain = stopwords_domain + nltk.corpus.stopwords.words('english')
         self.punctuation_removal = punctuation_removal
 
@@ -39,7 +38,7 @@ class Normalizer:
 
     def normalize(self, tokenized_sentences):
         sentences = tokenized_sentences
-        if self.stopword_removal:
+        if self.stopwords_removal:
             sentences = self.remove_stopwords(sentences)
         if self.punctuation_removal:
             sentences = self.remove_punctuations(sentences)
