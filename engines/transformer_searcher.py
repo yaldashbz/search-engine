@@ -52,6 +52,8 @@ class TransformerSearcher(BaseSearcher):
 
     def _get_results(self, distances, indexes):
         results = list()
+        indexes = indexes[::-1]
+        distances = distances[::-1]
         for i, index in enumerate(indexes):
             url = self.data[index]['url']
             results.append(self.output_cls(url=url, distance=distances[i]))

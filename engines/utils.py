@@ -32,4 +32,4 @@ class TransformerOut(DataOut):
 
     @classmethod
     def _get_score(cls, distance):
-        return 2 - distance / 2
+        return 1 - distance / 2
