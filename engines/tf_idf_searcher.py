@@ -48,9 +48,9 @@ class TFIDFSearcher(BaseSearcher):
         results = list()
         out = np.array(similar).argsort()[-k:][::-1]
         for index in out:
-            # url = self.data[index]['url']
+            url = self.data[index]['url']
             score = similar[index]
-            results.append({'score': score, 'index': index})
+            results.append(self.output_cls(url=url, score=score))
         return results
 
     def _get_query_vector(self, tokens):
