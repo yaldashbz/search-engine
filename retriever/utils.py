@@ -3,6 +3,8 @@ from typing import List
 
 from pre_process import PreProcessor
 
+DIVIDER = ' '
+
 WIKI_CATEGORIES = [
     'bbc', 'religion', 'sport', 'drink',
     'financial', 'health', 'literature',
@@ -20,3 +22,11 @@ def get_keywords(content: str) -> List[str]:
         word = word.replace(',', '').replace('.', '').replace('?', '').replace('!', '').replace(';', '')
         count[word] += 1
     return list({k: v for k, v in sorted(count.items(), key=lambda item: item[1])}.keys())[-20:]
+
+
+def get_words(content: str):
+    return content.split(DIVIDER)
+
+
+def get_contents(data: List):
+    return [doc['content'] for doc in data]

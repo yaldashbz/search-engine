@@ -4,22 +4,19 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from engines.base_searcher import BaseSearcher
-from engines.utils import cosine_sim, TFIDFOut
+from engines.utils import cosine_sim, DataOut
+from retriever.utils import get_contents
 
 
 class TFIDFSearcher(BaseSearcher):
     def __init__(self, data):
         super().__init__(data)
-        contents = self._get_all_contents(data)
+        contents = get_contents(data)
 
         self.tfidf = self._get_tfidf()
         self.matrix = self.tfidf.fit_transform(contents)
         self.vocabulary = self.tfidf.get_feature_names_out()
-        self.output_cls = TFIDFOut
-
-    @classmethod
-    def _get_all_contents(cls, data):
-        return [doc['content'] for doc in data]
+        self.output_cls = DataOut
 
     @classmethod
     def _get_tfidf(cls):
@@ -45,13 +42,11 @@ class TFIDFSearcher(BaseSearcher):
         return self.output_cls.to_df(output)
 
     def _get_results(self, scores, k):
-        results = list()
         out = np.array(scores).argsort()[-k:][::-1]
-        for index in out:
-            url = self.data[index]['url']
-            score = scores[index]
-            results.append(self.output_cls(url=url, score=score))
-        return results
+        return [self.output_cls(
+            url=self.data[index]['url'],
+            score=scores[index]
+        ) for index in out]
 
     def _get_query_vector(self, tokens):
         n = len(self.vocabulary)

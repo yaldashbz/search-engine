@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import List
 
 from pre_process import PreProcessor
-from retriever.utils import get_keywords
+from retriever.utils import get_keywords, DIVIDER
 
 
 @dataclass
@@ -14,7 +14,7 @@ class EngineData:
 
     def __init__(self, url, content):
         self.url = url
-        self.content = ' '.join([' '.join(sentence) for sentence in PreProcessor().process(content)])
+        self.content = DIVIDER.join([DIVIDER.join(sentence) for sentence in PreProcessor().process(content)])
         self.keywords = get_keywords(self.content)
 
     @classmethod

@@ -10,3 +10,4 @@ scikit-learn==1.0.2
 torch==1.11.0
 sentence-transformers==2.2.0
 faiss-cpu==1.7.2
+gensim==4.2.0

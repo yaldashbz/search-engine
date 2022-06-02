@@ -7,12 +7,13 @@ from sentence_transformers import SentenceTransformer
 
 from engines.base_searcher import BaseSearcher
 from engines.utils import TransformerOut
+from retriever.utils import get_contents
 
 
 class TransformerSearcher(BaseSearcher):
     def __init__(self, data):
         super().__init__(data)
-        contents = [doc['content'] for doc in self.data]
+        contents = get_contents(data)
 
         self.output_cls = TransformerOut
         self.data_len = len(contents)
@@ -51,10 +52,9 @@ class TransformerSearcher(BaseSearcher):
         return self.output_cls.to_df(output)
 
     def _get_results(self, distances, indexes):
-        results = list()
         indexes = indexes.flatten().tolist()
         distances = distances.flatten().tolist()
-        for i, index in enumerate(indexes):
-            url = self.data[index]['url']
-            results.append(self.output_cls(url=url, distance=distances[i]))
-        return results
+        return [self.output_cls(
+            url=self.data[index]['url'],
+            distance=distances[i]
+        ) for i, index in enumerate(indexes)]
