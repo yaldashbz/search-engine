@@ -2,6 +2,7 @@ import json
 from dataclasses import dataclass
 from typing import List
 
+from pre_process import PreProcessor
 from retriever.utils import get_keywords
 
 
@@ -11,9 +12,9 @@ class EngineData:
     content: str
     keywords: List[str]
 
-    def __init__(self, url, sentences):
+    def __init__(self, url, content):
         self.url = url
-        self.content = ' '.join([' '.join(sentence) for sentence in sentences])
+        self.content = ' '.join([' '.join(sentence) for sentence in PreProcessor().process(content)])
         self.keywords = get_keywords(self.content)
 
     @classmethod
