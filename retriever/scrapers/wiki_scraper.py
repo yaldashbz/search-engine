@@ -6,7 +6,7 @@ from wikipedia import WikipediaException
 
 from retriever.data import EngineData
 from retriever.scrapers.base_scraper import BaseWebScraper
-from retriever.utils import WIKI_CATEGORIES
+from retriever.utils import CATEGORIES
 
 wikipedia.set_lang('en')
 wikipedia.set_rate_limiting(True)
@@ -15,7 +15,7 @@ wikipedia.set_rate_limiting(True)
 class WikiScraper(BaseWebScraper):
     def __init__(self):
         self.titles = []  # TODO: remove
-        self.categories = WIKI_CATEGORIES
+        self.categories = CATEGORIES
 
     def scrape(
             self,

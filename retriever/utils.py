@@ -5,11 +5,15 @@ from pre_process import PreProcessor
 
 DIVIDER = ' '
 
-WIKI_CATEGORIES = [
-    'bbc', 'religion', 'sport', 'drink',
+CATEGORIES = [
+    'religion',
+    'sports', 'drink',
     'financial', 'health', 'literature',
     'social networks', 'food', 'history',
-    'animal'
+    'animals', 'news', 'science', 'movies',
+    'music', 'games', 'computer',
+    'football', 'basketball', 'volleyball',
+    'university', 'national', 'politics'
 ]
 
 
