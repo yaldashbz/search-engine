@@ -25,5 +25,10 @@ class EngineData:
         return [page.__dict__ for page in data]
 
     @classmethod
+    def _cleanup(cls, data: List) -> List:
+        return [doc for doc in data if doc['content'] != '']
+
+    @classmethod
     def save(cls, data: List, path: str):
+        data = cls._cleanup(data)
         json.dump(cls._convert(data), open(path, 'a+'))
