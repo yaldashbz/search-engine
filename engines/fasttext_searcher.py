@@ -17,43 +17,47 @@ class FasttextSearcher(BaseSearcher):
         super().__init__(data)
         contents = get_contents(data)
 
+        path = os.path.join(self._MODEL_PATH, self._MODEL_FILE)
+        if not (train or os.path.exists(path)):
+            raise ValueError
+
+        self.fasttext = self._get_fasttext(train, min_count, path)
         if train:
-            self._train(contents, min_count)
-        self.model = FastText.load(os.path.join(self._MODEL_PATH, self._MODEL_FILE))
+            self._train(contents)
+            self._save_model()
         self.doc_embedding_avg = self._get_doc_embedding_avg(contents)
 
-    def _train(self, contents, min_count):
-        fasttext = FastText(
+    @classmethod
+    def _get_fasttext(cls, train: bool, min_count: int, path: str):
+        return FastText(
             sg=1, window=10, min_count=min_count,
             negative=15, min_n=2, max_n=5
-        )
+        ) if train else FastText.load(path)
+
+    def _train(self, contents):
         tokens = [get_words(content) for content in contents]
-        fasttext.build_vocab(tokens)
-        fasttext.train(
+        self.fasttext.build_vocab(tokens)
+        self.fasttext.train(
             tokens,
             epochs=self._EPOCHS,
-            total_examples=fasttext.corpus_count,
-            total_words=fasttext.corpus_total_words
+            total_examples=self.fasttext.corpus_count,
+            total_words=self.fasttext.corpus_total_words
         )
+
+    def _save_model(self):
         if not os.path.exists(self._MODEL_PATH):
             os.mkdir(self._MODEL_PATH)
-        fasttext.save(os.path.join(self._MODEL_PATH, self._MODEL_FILE))
+        self.fasttext.save(os.path.join(self._MODEL_PATH, self._MODEL_FILE))
 
     def _get_doc_embedding_avg(self, contents):
         docs_avg = dict()
-        for i, content in enumerate(contents):
+        for index, content in enumerate(contents):
             words = get_words(content)
-            total = np.zeros(100)
-            for word in words:
-                total = np.sum([total, self.model.wv[word]], axis=0)
-            docs_avg[i] = total / len(words)
+            docs_avg[index] = np.mean([self.fasttext.wv[word] for word in words])
         return docs_avg
 
     def _get_query_embedding_avg(self, tokens):
-        total = np.zeros(100)
-        for token in tokens:
-            total = np.sum([total, self.model.wv[token]], axis=0)
-        return total / len(tokens)
+        return np.mean([self.fasttext.wv[token] for token in tokens])
 
     def process_query(self, query):
         tokens = self.pre_processor.process(query)
