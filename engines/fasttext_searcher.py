@@ -53,11 +53,11 @@ class FasttextSearcher(BaseSearcher):
         docs_avg = dict()
         for index, content in enumerate(contents):
             words = get_words(content)
-            docs_avg[index] = np.mean([self.fasttext.wv[word] for word in words])
+            docs_avg[index] = np.mean([self.fasttext.wv[word] for word in words], axis=0)
         return docs_avg
 
     def _get_query_embedding_avg(self, tokens):
-        return np.mean([self.fasttext.wv[token] for token in tokens])
+        return np.mean([self.fasttext.wv[token] for token in tokens], axis=0)
 
     def process_query(self, query):
         tokens = self.pre_processor.process(query)
