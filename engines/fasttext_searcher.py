@@ -10,7 +10,7 @@ from retriever.utils import get_contents, get_words
 
 class FasttextSearcher(BaseSearcher):
     _EPOCHS = 6
-    _MODEL_PATH = '/models'
+    _MODEL_PATH = 'models'
     _MODEL_FILE = 'fasttext.model'
 
     def __init__(self, data, train: bool = True, min_count: int = 1):
