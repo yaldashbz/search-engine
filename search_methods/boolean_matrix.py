@@ -1,3 +1,8 @@
+import json
+from typing import Dict, List
+
+import numpy as np
+
 from search_methods.base_method import BaseSearcher
 
 NOT_OP = "NOT"
@@ -12,6 +17,26 @@ PRECEDENCE = dict(zip(OPERATORS, range(len(OPERATORS))))
 
 
 class BooleanSearcher(BaseSearcher):
+    def __init__(self):
+        super().__init__()
+        self.header: Dict[str, List] = json.load(open('data_files/boolean_matrix/header.json', 'r+'))
+        self.implied_header: Dict[str, List] = json.load(open('data_files/boolean_matrix/header.json', 'r+'))
+        self.rows_count = len(self.header['rows'])
+        self.columns_count = len(self.header['columns'])
+        self.matrix = np.load('data_files/boolean_matrix/matrix.npz')['matrix']
+        # print([i for i in range(self.rows_count) if self.matrix[i][self.get_column_index('freedom')]])
+
+    def get_row_index(self, row):
+        if row not in self.header['rows']:
+            return self.implied_header['rows'].index(row)
+        return self.header['rows'].index(row)
+
+    def get_column_index(self, column):
+        if column not in self.header['columns']:
+            return self.implied_header['columns'].index(column)
+        else:
+            return self.header['columns'].index(column)
+
     def search(self):
         pass
 
@@ -26,28 +51,21 @@ class BooleanSearcher(BaseSearcher):
 
     def process_query(self, query):
 
-        # Convert the infix query to a postfix notation using the Shunting Yard Algorithm
         postfix_query = self._shunting_yard(query)
 
-        # Process the expression in the correct precedence
-        # An empty posting list is inserted for the case of a blank query
-        operands = [(0, list())]
+        operands = list()
         for t in postfix_query:
             if t in OPERATORS:
-                # Evaluate the operation
                 operand1 = operands.pop()
 
                 if t == NOT_OP:
-                    result = apply_not(operand1)
+                    result = self.apply_not(operand1)
                 else:
                     operand2 = operands.pop()
                     if t == AND_OP:
-                        result = apply_and(operand1, operand2)
-                    elif t == AND_NOT_OP:
-                        # Note that the order of operands is swapped for AND NOT
-                        result = apply_and_not(operand2, operand1)
+                        result = self.apply_and(operand1, operand2)
                     elif t == OR_OP:
-                        result = apply_or(operand1, operand2)
+                        result = self.apply_or(operand1, operand2)
                 operands.append(result)
             else:
                 operands.append(t)
@@ -88,3 +106,7 @@ class BooleanSearcher(BaseSearcher):
         clear_token_stack()
 
         return result
+
+    def apply_not(self, operand1):
+        index = self.get_column_index(operand1)
+        self.matrix[self.get_column_index(operand1)]
