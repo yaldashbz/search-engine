@@ -1,4 +1,5 @@
 .idea
 venv
+data_files
 *.pyc
 *.json
