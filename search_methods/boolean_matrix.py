@@ -12,10 +12,6 @@ PRECEDENCE = dict(zip(OPERATORS, range(len(OPERATORS))))
 
 
 class BooleanSearcher(BaseSearcher):
-    def process_query(self, query):
-        query_stack = self._shunting_yard(query)
-        print(query_stack)
-
     def search(self):
         pass
 
@@ -27,6 +23,37 @@ class BooleanSearcher(BaseSearcher):
         result_front = query[: query.find(PAREN_START)].split()
         result_back = query[query.find(PAREN_END) + 1:].split()
         return result_front + [paren_query] + result_back
+
+    def process_query(self, query):
+
+        # Convert the infix query to a postfix notation using the Shunting Yard Algorithm
+        postfix_query = self._shunting_yard(query)
+
+        # Process the expression in the correct precedence
+        # An empty posting list is inserted for the case of a blank query
+        operands = [(0, list())]
+        for t in postfix_query:
+            if t in OPERATORS:
+                # Evaluate the operation
+                operand1 = operands.pop()
+
+                if t == NOT_OP:
+                    result = apply_not(operand1)
+                else:
+                    operand2 = operands.pop()
+                    if t == AND_OP:
+                        result = apply_and(operand1, operand2)
+                    elif t == AND_NOT_OP:
+                        # Note that the order of operands is swapped for AND NOT
+                        result = apply_and_not(operand2, operand1)
+                    elif t == OR_OP:
+                        result = apply_or(operand1, operand2)
+                operands.append(result)
+            else:
+                operands.append(t)
+
+        result = operands.pop()
+        return get_data(result)
 
     def _shunting_yard(self, query):
         tokens = self._parse_query(query)
