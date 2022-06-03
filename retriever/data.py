@@ -26,4 +26,4 @@ class EngineData:
 
     @classmethod
     def save(cls, data: List, path: str):
-        json.dump(cls._convert(data), open(path, 'w+'))
+        json.dump(cls._convert(data), open(path, 'a+'))
