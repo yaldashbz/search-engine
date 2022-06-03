@@ -10,8 +10,8 @@ from retriever.data import EngineData
 class BaseWebScraper(ABC):
 
     @abstractmethod
-    def scrape(self, url: str) -> List[EngineData]:
-        """Get data from a web page: url"""
+    def scrape(self) -> List[EngineData]:
+        """Scrape data from web"""
         raise NotImplementedError
 
     @classmethod

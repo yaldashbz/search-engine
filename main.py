@@ -1,8 +1,10 @@
 from retriever.data import EngineData
 from retriever.scrapers import WikiScraper
+from retriever.scrapers.google_scraper import GoogleScraper
 
 _scrapers = {
-    'wiki': WikiScraper
+    'wiki': WikiScraper,
+    'google': GoogleScraper
 }
 
 
@@ -20,7 +22,7 @@ if __name__ == '__main__':
                         help='Path to the file containing the quantities.')
     parser.add_argument('--depth', '-d', type=int, default=1,
                         help='Max depth for wiki scraper')
-    parser.add_argument('--scraper', '-s', type=str, default='wiki',
+    parser.add_argument('--scraper', '-s', type=str, default='google',
                         help='Chosen scraper')
 
     args = parser.parse_args()

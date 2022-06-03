@@ -17,6 +17,9 @@ class EngineData:
         self.content = DIVIDER.join([DIVIDER.join(sentence) for sentence in PreProcessor().process(content)])
         self.keywords = get_keywords(self.content)
 
+    def __hash__(self):
+        return hash(f'{self.url} - {self.content}')
+
     @classmethod
     def _convert(cls, data: List) -> List:
         return [page.__dict__ for page in data]
