@@ -31,7 +31,7 @@ def get_keywords(content: str) -> List[str]:
 
 def get_contents(data: List):
     return [
-        DIVIDER.join([DIVIDER.join(sentence) for sentence in doc])
+        DIVIDER.join([DIVIDER.join(sentence) for sentence in doc['tokens']])
         for doc in data
     ]
 
