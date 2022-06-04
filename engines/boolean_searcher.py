@@ -57,14 +57,16 @@ class BooleanSearcher(BaseSearcher):
         except ValueError:
             return np.zeros(len(self._all_urls), dtype=bool)
 
-    def _operate(self, op1, op2, operator):
+    @classmethod
+    def _operate(cls, op1, op2, operator):
         if operator == AND:
             return op1 & op2
 
         if operator == OR:
             return op1 | op2
 
-    def _handle_not(self, tokens):
+    @classmethod
+    def _handle_not(cls, tokens):
         new_tokens = list()
 
         i = 0
