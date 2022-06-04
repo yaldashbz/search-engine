@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from itertools import chain
 
 import numpy as np
 
@@ -49,12 +50,13 @@ class BooleanSearcher(BaseSearcher):
 
     def _get_column(self, word):
         try:
-            index = self._all_words[word[1]]
+            token = ''.join(chain(*self.pre_processor.process(word[1])))
+            index = self._all_words[token]
             matrix = self.matrix[:, index]
             if word[0] == NOT:
                 matrix = ~matrix
             return matrix
-        except ValueError:
+        except KeyError:
             return np.zeros(len(self._all_urls), dtype=bool)
 
     @classmethod
@@ -84,7 +86,7 @@ class BooleanSearcher(BaseSearcher):
         return new_tokens
 
     def process_query(self, query):
-        query = re.sub('\\W+', ' ', query).strip()
+        query = re.sub('\\W+', ' ', query).strip().lower()
         words, operators = list(), list()
         tokens = self._handle_not(query.split())
 
