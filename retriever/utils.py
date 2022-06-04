@@ -32,5 +32,9 @@ def get_words(content: str):
     return content.split(DIVIDER)
 
 
+def get_unique_words(content: str):
+    return list(set(content.split(DIVIDER)))
+
+
 def get_contents(data: List):
     return [doc['content'] for doc in data]

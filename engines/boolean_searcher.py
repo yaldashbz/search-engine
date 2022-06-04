@@ -1,63 +1,128 @@
+import json
+import os
+import re
+
+import numpy as np
+
 from engines.base_searcher import BaseSearcher
+from engines.utils import create_boolean_matrix, BooleanDataOut
 
-NOT_OP = "NOT"
-AND_OP = "AND"
-AND_NOT_OP = AND_OP + " " + NOT_OP
-OR_OP = "OR"
-PAREN_START = "("
-PAREN_END = ")"
-
-OPERATORS = [NOT_OP, AND_NOT_OP, AND_OP, OR_OP]
-PRECEDENCE = dict(zip(OPERATORS, range(len(OPERATORS))))
+NOT = 'not'
+AND = 'and'
+OR = 'or'
 
 
 class BooleanSearcher(BaseSearcher):
-    def process_query(self, query):
-        query_stack = self._shunting_yard(query)
-        print(query_stack)
+    _MATRIX_PATH = 'matrices'
+    _MATRIX_NAME = 'matrix.npz'
+    _HEADER_NAME = 'header.json'
 
-    def search(self, query, k):
-        pass
+    def __init__(self, data, build: bool = True):
+        super().__init__(data)
+        self.output_cls = BooleanDataOut
 
-    def _parse_query(self, query):
-        if PAREN_START not in query:
-            return query.split()
+        matrix_path = os.path.join(self._MATRIX_PATH, self._MATRIX_NAME)
+        header_path = os.path.join(self._MATRIX_PATH, self._HEADER_NAME)
 
-        paren_query = query[query.find(PAREN_START): query.find(PAREN_END) + 1]
-        result_front = query[: query.find(PAREN_START)].split()
-        result_back = query[query.find(PAREN_END) + 1:].split()
-        return result_front + [paren_query] + result_back
+        if not (build or os.path.exists(matrix_path) or os.path.exists(header_path)):
+            raise ValueError
 
-    def _shunting_yard(self, query):
-        tokens = self._parse_query(query)
+        if not os.path.exists(self._MATRIX_PATH):
+            os.mkdir(self._MATRIX_PATH)
 
-        token_stack = list()
-        result = list()
+        self.matrix, self.header = self._get_matrix(build, matrix_path, header_path)
 
-        def clear_token_stack():
-            nonlocal token_stack, result
-            while token_stack:
-                result.append(token_stack.pop())
+    def _get_matrix(self, build, matrix_path, header_path):
+        return create_boolean_matrix(
+            self.data, matrix_path, header_path
+        ) if build else (np.load(matrix_path)['matrix'], json.load(open(header_path, 'r')))
+
+    @property
+    def _all_words(self):
+        """words as columns"""
+        return self.header['columns']
+
+    @property
+    def _all_urls(self):
+        """urls as rows"""
+        return self.header['rows']
+
+    def _get_column(self, word):
+        try:
+            index = self._all_words[word[1]]
+            matrix = self.matrix[:, index]
+            if word[0] == NOT:
+                matrix = ~matrix
+            return matrix
+        except ValueError:
+            return np.zeros(len(self._all_urls), dtype=bool)
+
+    def _operate(self, op1, op2, operator):
+        if operator == AND:
+            return op1 & op2
+
+        if operator == OR:
+            return op1 | op2
+
+    def _handle_not(self, tokens):
+        new_tokens = list()
 
         i = 0
-        while i < len(tokens):
+        n = len(tokens)
+        while i < n:
             token = tokens[i]
-            if token in OPERATORS:
-                if token == AND_OP and tokens[i + 1] == NOT_OP:
-                    token = AND_NOT_OP
-                    i += 1
-
-                if token_stack and PRECEDENCE[token_stack[-1]] > PRECEDENCE[token]:
-                    clear_token_stack()
-                token_stack.append(token)
-            elif token.startswith(PAREN_START):
-                parsed_query = self._shunting_yard(token[1: -1])
-                result += parsed_query
+            if i + 1 < n and token in [AND, OR]:
+                new_tokens.append(token)
+            elif i + 1 < n and token == NOT:
+                new_tokens.append((NOT, tokens[i + 1]))
+                i += 1
             else:
-                result.append(self.pre_processor.process(token)[0][0])
-
+                new_tokens.append(('', token))
             i += 1
+        return new_tokens
 
-        clear_token_stack()
+    def process_query(self, query):
+        query = re.sub('\\W+', ' ', query).strip()
+        words, operators = list(), list()
+        tokens = self._handle_not(query.split())
 
-        return result
+        for token in tokens:
+            if isinstance(token, str):
+                operators.append(token)
+            else:
+                words.append(token)
+
+        return words, operators
+
+    def search(self, query, k):
+        words, operators = self.process_query(query)
+        assert len(words) == len(operators) + 1
+        n = len(words)
+        if n == 0:
+            return None
+        if n < 2:
+            return self._get_results(self._get_column(words[0]), k)
+
+        op1, op2 = self._get_column(words[0]), self._get_column(words[1])
+        operator = operators[0]
+        result = self._operate(op1, op2, operator)
+
+        for i, token in enumerate(words[2:]):
+            op2 = self._get_column(token)
+            result = self._operate(result, op2, operators[i + 1])
+
+        return self._get_results(result, k)
+
+    def _get_results_urls(self, indexes):
+        result_urls = list()
+        for url, i in self._all_urls.items():
+            if i in indexes:
+                result_urls.append(url)
+        return result_urls
+
+    def _get_results(self, column, k):
+        indexes = column.nonzero()[0]
+        indexes = indexes[:k] if k < len(indexes) else indexes
+        urls = self._get_results_urls(indexes)
+        results = [self.output_cls(url=url) for url in urls]
+        return results

@@ -1,4 +1,5 @@
 .idea
 venv
+*.npz
 *.pyc
 *.json
