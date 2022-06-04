@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 import numpy as np
 
@@ -8,9 +9,7 @@ from engines.utils import create_boolean_matrix, BooleanDataOut
 
 NOT = 'not'
 AND = 'and'
-AND_NOT = AND + NOT
 OR = 'or'
-OR_NOT = OR + NOT
 
 
 class BooleanSearcher(BaseSearcher):
@@ -50,50 +49,45 @@ class BooleanSearcher(BaseSearcher):
 
     def _get_column(self, word):
         try:
-            index = self._all_words.index(word)
-            return self.matrix[:, index]
+            index = self._all_words.index(word[1])
+            matrix = self.matrix[:, index]
+            if word[0] == NOT:
+                matrix = ~matrix
+            return matrix
         except ValueError:
             return np.zeros(len(self._all_urls), dtype=bool)
 
-    @classmethod
-    def _operate(cls, op1, op2, operator):
+    def _operate(self, op1, op2, operator):
         if operator == AND:
             return op1 & op2
 
         if operator == OR:
             return op1 | op2
 
-        if operator == AND_NOT:
-            return op1 & ~op2
-
-        if operator == OR_NOT:
-            return op1 | ~op2
-
-    @classmethod
-    def _handle_not(cls, tokens):
+    def _handle_not(self, tokens):
         new_tokens = list()
 
         i = 0
         n = len(tokens)
         while i < n:
             token = tokens[i]
-            if i + 1 < n and token == AND and tokens[i + 1] == NOT:
-                new_tokens.append(AND_NOT)
-                i += 1
-            elif i + 1 < n and token == OR and tokens[i + 1] == NOT:
-                new_tokens.append(OR_NOT)
+            if i + 1 < n and token in [AND, OR]:
+                new_tokens.append(token)
+            elif i + 1 < n and token == NOT:
+                new_tokens.append((NOT, tokens[i + 1]))
                 i += 1
             else:
-                new_tokens.append(token)
+                new_tokens.append(('', token))
             i += 1
         return new_tokens
 
     def process_query(self, query):
+        query = re.sub('\\W+', ' ', query).strip()
         words, operators = list(), list()
         tokens = self._handle_not(query.split())
 
         for token in tokens:
-            if token in [AND, NOT, OR, AND_NOT, OR_NOT]:
+            if isinstance(token, str):
                 operators.append(token)
             else:
                 words.append(token)
@@ -102,7 +96,6 @@ class BooleanSearcher(BaseSearcher):
 
     def search(self, query, k):
         words, operators = self.process_query(query)
-        print(words, operators)
         assert len(words) == len(operators) + 1
         n = len(words)
         if n == 0:

@@ -20,11 +20,11 @@ class TFIDFSearcher(BaseSearcher):
     @classmethod
     def _get_tfidf(cls):
         return TfidfVectorizer(
-            use_idf=True, norm='l2', analyzer='word', ngram_range=(1, 3)
+            use_idf=True, norm='l2', analyzer='word', ngram_range=(1, 1)
         )
 
     def process_query(self, query):
-        query = re.sub('\W+', ' ', query).strip()
+        query = re.sub('\\W+', ' ', query).strip()
         return self.pre_processor.process(query)
 
     def search(self, query, k):

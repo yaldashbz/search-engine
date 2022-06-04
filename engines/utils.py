@@ -1,6 +1,5 @@
 import json
 from dataclasses import dataclass
-from typing import Dict, List
 
 import numpy as np
 import pandas as pd
