@@ -2,6 +2,7 @@ import json
 import os
 import re
 from itertools import chain
+from random import shuffle
 
 import numpy as np
 
@@ -90,11 +91,16 @@ class BooleanSearcher(BaseSearcher):
         words, operators = list(), list()
         tokens = self._handle_not(query.split())
 
-        for token in tokens:
+        is_word = False
+        for i, token in enumerate(tokens):
             if isinstance(token, str):
                 operators.append(token)
+                is_word = False
             else:
+                if is_word:
+                    operators.append(AND)
                 words.append(token)
+                is_word = True
 
         return words, operators
 
@@ -126,7 +132,8 @@ class BooleanSearcher(BaseSearcher):
 
     def _get_results(self, column, k):
         indexes = column.nonzero()[0]
-        indexes = indexes[:k] if k < len(indexes) else indexes
         urls = self._get_results_urls(indexes)
+        shuffle(urls)
+        urls = urls[:k] if k < len(urls) else urls
         results = [self.output_cls(url=url) for url in urls]
         return results
