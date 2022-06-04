@@ -9,24 +9,26 @@ from retriever.utils import get_keywords, DIVIDER
 @dataclass
 class EngineData:
     url: str
-    content: str
+    tokens: List[List[str]]
     keywords: List[str]
+    content: str
 
     def __init__(self, url, content):
         self.url = url
-        self.content = DIVIDER.join([DIVIDER.join(sentence) for sentence in PreProcessor().process(content)])
-        self.keywords = get_keywords(self.content)
+        self.tokens = PreProcessor().process(content)
+        self.content = DIVIDER.join([DIVIDER.join(sentence) for sentence in self.tokens])
+        self.keywords = get_keywords(content)
 
     def __hash__(self):
         return hash(f'{self.url} - {self.content}')
 
     @classmethod
     def _convert(cls, data: List) -> List:
-        return [page.__dict__ for page in data]
+        return [{'url': doc.url, 'tokens': doc.tokens} for doc in data]
 
     @classmethod
     def _cleanup(cls, data: List) -> List:
-        return [doc for doc in data if doc['content'] != '']
+        return [doc for doc in data if doc.tokens]
 
     @classmethod
     def save(cls, data: List, path: str):

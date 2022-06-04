@@ -1,9 +1,12 @@
 import json
 from dataclasses import dataclass
+from itertools import chain
 
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+
+from retriever.utils import get_words
 
 
 def cosine_sim(a, b):
@@ -44,12 +47,11 @@ def get_dict(big_list):
 
 def get_all_urls_and_words(data):
     all_urls = list()
-    contents = list()
-    for d in data:
-        all_urls.append(d['url'])
-        contents.append(d['content'])
-    all_words = list(set(' '.join(contents).split()))
-
+    all_words = list()
+    for doc in data:
+        all_urls.append(doc['url'])
+        all_words.append(get_words(doc))
+    all_words = list(set(all_words))
     return get_dict(all_urls), get_dict(all_words)
 
 

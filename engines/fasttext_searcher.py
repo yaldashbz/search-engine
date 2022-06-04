@@ -5,7 +5,7 @@ from gensim.models.fasttext import FastText
 
 from engines.base_searcher import BaseSearcher
 from engines.utils import cosine_sim
-from retriever.utils import get_contents, get_words
+from retriever.utils import get_words
 
 
 class FasttextSearcher(BaseSearcher):
@@ -15,7 +15,6 @@ class FasttextSearcher(BaseSearcher):
 
     def __init__(self, data, train: bool = True, min_count: int = 1):
         super().__init__(data)
-        contents = get_contents(data)
 
         path = os.path.join(self._MODEL_PATH, self._MODEL_FILE)
         if not (train or os.path.exists(path)):
@@ -23,9 +22,9 @@ class FasttextSearcher(BaseSearcher):
 
         self.fasttext = self._get_fasttext(train, min_count, path)
         if train:
-            self._train(contents)
+            self._train()
             self._save_model()
-        self.doc_embedding_avg = self._get_doc_embedding_avg(contents)
+        self.doc_embedding_avg = self._get_doc_embedding_avg()
 
     @classmethod
     def _get_fasttext(cls, train: bool, min_count: int, path: str):
@@ -34,8 +33,8 @@ class FasttextSearcher(BaseSearcher):
             negative=15, min_n=2, max_n=5
         ) if train else FastText.load(path)
 
-    def _train(self, contents):
-        tokens = [get_words(content) for content in contents]
+    def _train(self):
+        tokens = [get_words(doc) for doc in self.data]
         self.fasttext.build_vocab(tokens)
         self.fasttext.train(
             tokens,
@@ -49,10 +48,10 @@ class FasttextSearcher(BaseSearcher):
             os.mkdir(self._MODEL_PATH)
         self.fasttext.save(os.path.join(self._MODEL_PATH, self._MODEL_FILE))
 
-    def _get_doc_embedding_avg(self, contents):
+    def _get_doc_embedding_avg(self):
         docs_avg = dict()
-        for index, content in enumerate(contents):
-            words = get_words(content)
+        for index, doc in enumerate(self.data):
+            words = get_words(doc)
             docs_avg[index] = np.mean([self.fasttext.wv[word] for word in words], axis=0)
         return docs_avg
 

@@ -1,4 +1,5 @@
 from collections import defaultdict
+from itertools import chain
 from typing import List
 
 from pre_process import PreProcessor
@@ -28,13 +29,16 @@ def get_keywords(content: str) -> List[str]:
     return list({k: v for k, v in sorted(count.items(), key=lambda item: item[1])}.keys())[-20:]
 
 
-def get_words(content: str):
-    return content.split(DIVIDER)
-
-
-def get_unique_words(content: str):
-    return list(set(content.split(DIVIDER)))
-
-
 def get_contents(data: List):
-    return [doc['content'] for doc in data]
+    return [
+        DIVIDER.join([DIVIDER.join(sentence) for sentence in doc])
+        for doc in data
+    ]
+
+
+def get_sentences(doc):
+    return [' '.join(words) for words in doc['tokens']]
+
+
+def get_words(doc):
+    return list(chain(*doc['tokens']))
