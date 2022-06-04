@@ -49,7 +49,7 @@ class BooleanSearcher(BaseSearcher):
 
     def _get_column(self, word):
         try:
-            index = self._all_words.index(word[1])
+            index = self._all_words[word[1]]
             matrix = self.matrix[:, index]
             if word[0] == NOT:
                 matrix = ~matrix
@@ -113,16 +113,16 @@ class BooleanSearcher(BaseSearcher):
 
         return self._get_results(result, k)
 
+    def _get_results_urls(self, indexes):
+        result_urls = list()
+        for url, i in self._all_urls.items():
+            if i in indexes:
+                result_urls.append(url)
+        return result_urls
+
     def _get_results(self, column, k):
         indexes = column.nonzero()[0]
-        urls = self._all_urls
-        results = [self.output_cls(url=urls[i]) for i in indexes]
-        return results[:k] if k < len(results) else results
-
-
-if __name__ == '__main__':
-    data = [{'content': 'salam manam khubam.', 'url': '1'}, {'content': 'to chetori', 'url': '2'},
-            {'content': 'boro baba khubi', 'url': '3'}]
-    s = BooleanSearcher(data, build=False)
-    q = 'salam and not khubi or not baba'
-    print(s.search(q, 2))
+        indexes = indexes[:k] if k < len(indexes) else indexes
+        urls = self._get_results_urls(indexes)
+        results = [self.output_cls(url=url) for url in urls]
+        return results

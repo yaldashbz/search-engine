@@ -9,6 +9,7 @@ from tqdm import tqdm
 def cosine_sim(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
+
 @dataclass
 class DataOut:
     url: str
@@ -37,6 +38,10 @@ class TransformerOut(DataOut):
         return 1 - distance / 2
 
 
+def get_dict(big_list):
+    return {word: i for i, word in enumerate(big_list)}
+
+
 def get_all_urls_and_words(data):
     all_urls = list()
     contents = list()
@@ -45,7 +50,7 @@ def get_all_urls_and_words(data):
         contents.append(d['content'])
     all_words = list(set(' '.join(contents).split()))
 
-    return all_urls, all_words
+    return get_dict(all_urls), get_dict(all_words)
 
 
 def create_boolean_matrix(data, matrix_path: str, header_path: str):
@@ -57,7 +62,7 @@ def create_boolean_matrix(data, matrix_path: str, header_path: str):
         content: str = d['content']
         words = content.split()
         for word in words:
-            matrix[all_urls.index(url)][all_words.index(word)] = True
+            matrix[all_urls[url]][all_words[word]] = True
 
     json.dump(header, open(header_path, 'w+'))
     np.savez_compressed(matrix_path, matrix=matrix)
